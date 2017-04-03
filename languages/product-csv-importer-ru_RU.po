@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2017-04-03 17:00+0300\n"
+"PO-Revision-Date: 2017-04-03 17:02+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.12\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-KeywordsList: .;__\n"
+"X-Poedit-SearchPath-0: languages\n"
+"X-Poedit-SearchPath-1: admin\n"
+
+#: admin/class-product-csv-importer-admin.php:165
+#: admin/class-product-csv-importer-admin.php:166
+#: admin/class-product-csv-importer-admin.php:213
+msgid "Products Import"
+msgstr "Импорт товаров"
+
+#: admin/class-product-csv-importer-admin.php:178
+msgid "You do not have sufficient permissions to access this page."
+msgstr "У Вас недостаточно прав для доступа к данной странице."
+
+#: admin/class-product-csv-importer-admin.php:223
+msgid "Delimeter"
+msgstr "Разделитель"
+
+#: admin/class-product-csv-importer-admin.php:230
+msgid "Enclosure"
+msgstr "Контейнер"
+
+#: admin/class-product-csv-importer-admin.php:237
+msgid "File charset"
+msgstr "Кодировка файла"
+
+#: admin/class-product-csv-importer-admin.php:250
+msgid "Importing CSV-file"
+msgstr "Файл импорта (.csv)"
+
+#: admin/class-product-csv-importer-admin.php:252
+msgid "Select"
+msgstr "Выбрать"
