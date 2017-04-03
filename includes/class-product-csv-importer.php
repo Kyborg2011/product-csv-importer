@@ -148,7 +148,6 @@ class Product_Csv_Importer {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 	}
-	}
 
 	/**
 	 * Run the loader to execute all of the hooks with WordPress.
