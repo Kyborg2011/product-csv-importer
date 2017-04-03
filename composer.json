@@ -1,0 +1,15 @@
+{
+    "name": "anton/product-csv-importer",
+    "description": "WordPress plugin",
+    "type": "wordpress-plugin",
+    "require": {
+        "goodby/csv": "^1.3"
+    },
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Anton Babinin",
+            "email": "wkyborgw@gmail.com"
+        }
+    ]
+}
