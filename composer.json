@@ -11,5 +11,10 @@
             "name": "Anton Babinin",
             "email": "wkyborgw@gmail.com"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "": ""
+        }
+    }
 }

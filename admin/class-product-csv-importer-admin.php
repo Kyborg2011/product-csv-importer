@@ -8,13 +8,6 @@ use Goodby\CSV\Import\Standard\LexerConfig;
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       https://github.com/Kyborg2011
- * @since      1.0.0
- */
-
-/**
- * The admin-specific functionality of the plugin.
- *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
@@ -23,7 +16,7 @@ use Goodby\CSV\Import\Standard\LexerConfig;
 class Product_Csv_Importer_Admin
 {
     /**
-     * Default CSV delimeter
+     * Default CSV delimeter.
      *
      * @since    1.0.0
      *
@@ -32,22 +25,63 @@ class Product_Csv_Importer_Admin
     public static $default_delimeter_symbol = ';';
 
     /**
-     * Default CSV enclosure symbol
+     * Default CSV enclosure symbol.
      *
      * @since    1.0.0
      *
      * @var string Default CSV enclosure symbol
      */
-    public static $default_enclosure_symbol = "&#34;";
+    public static $default_enclosure_symbol = '&#34;';
 
     /**
-     * Default CSV file charset
+     * Default No. of the row with header cells.
+     *
+     * @since    1.0.0
+     *
+     * @var string Default CSV enclosure symbol
+     */
+    public static $default_header_cells_row_number = 1;
+
+    /**
+     * Default CSV file charset.
      *
      * @since    1.0.0
      *
      * @var string Default CSV file charset
      */
     public static $default_charset = 'utf-8';
+
+    /**
+     * Charset options used to fill <option> in charset <select> field.
+     *
+     * @since    1.0.0
+     *
+     * @var array Charset options
+     */
+    public static $charset_options = array(
+        'utf-32',
+        'utf-16',
+        'utf-8',
+        'koi8-r',
+        'windows-1251',
+        'windows-1252',
+    );
+
+    /**
+     * Names of all value fields in the form (eg. inputs and selects).
+     *
+     * @since    1.0.0
+     */
+    private $hidden_field_name = 'product_csv_importer_submit_hidden';
+    private $delimeter_field_name = 'product_csv_importer_delimeter_symbol';
+    private $enclosure_field_name = 'product_csv_importer_enclosure_symbol';
+    private $charset_field_name = 'product_csv_importer_charset';
+    private $file_field_name = 'product_csv_importer_file_import';
+    private $header_cells_row_field_name = 'product_csv_importer_header_cells_row_number';
+
+    public $updated_parameters = array();
+    public $count_created_products = 0;
+    public $count_updated_products = 0;
 
     /**
      * The ID of this plugin.
@@ -81,31 +115,19 @@ class Product_Csv_Importer_Admin
         $this->version = $version;
     }
 
-    /**
-     * Getting WC_Product by SKU or 'null' if product SKU not fount
-     *
-     * @since    1.0.0
-     *
-     * @param  string     $sku     The product SKU (marking)
-     * @return WC_Product $product The product entity
-     */
-    public static function get_product_by_sku( $sku )
-    {
-        global $wpdb;
-        $product = null;
-        $sql_query = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1";
-
-        $product_id = $wpdb->get_var( $wpdb->prepare(
-            $sql_query, $sku ) );
-        if ( $product_id )
-            $product = new WC_Product( $product_id );
-
-        return $product;
-    }
-
     public static function has_files_to_upload($id)
     {
         return (!empty($_FILES)) && isset($_FILES[ $id ]);
+    }
+
+    private function is_received_data_valid()
+    {
+        if (!self::has_files_to_upload($this->file_field_name) ||
+                        !$_FILES[$this->file_field_name]['name']) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -152,6 +174,7 @@ class Product_Csv_Importer_Admin
          */
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__).'js/product-csv-importer-admin.js', array('jquery'), $this->version, false);
+        wp_enqueue_script('jquery-plugin-numeric-input', plugin_dir_url(__FILE__).'js/numericInput.min.js', array('jquery'), $this->version, false);
     }
 
     /**
@@ -162,14 +185,14 @@ class Product_Csv_Importer_Admin
     public function add_menu_pages()
     {
         add_menu_page(
-		        __('Products Import', 'product-csv-importer'),
-		        __('Products Import', 'product-csv-importer'),
-		        'manage_options',
-		        'import_page',
-		        array($this, 'import_page_html'),
-		        plugin_dir_url(__FILE__).'images/icon.png',
-		        59
-    		);
+	          __('Products import', 'product-csv-importer'),
+	          __('Products import', 'product-csv-importer'),
+	          'manage_options',
+	          'import_page',
+	          array($this, 'import_page_html'),
+	          plugin_dir_url(__FILE__).'images/icon.png',
+	          59
+	      );
     }
 
     public function import_page_html()
@@ -178,105 +201,168 @@ class Product_Csv_Importer_Admin
             wp_die(__('You do not have sufficient permissions to access this page.', 'product-csv-importer'));
         }
 
-        $charsets = array(
-            'utf-32',
-            'utf-16',
-            'utf-8',
-            'koi8-r',
-            'windows-1251',
-            'windows-1252',
-        );
-        $hidden_field_name = 'product_csv_importer_submit_hidden';
-        $delimeter_field_name = 'product_csv_importer_delimeter_symbol';
-        $enclosure_field_name = 'product_csv_importer_enclosure_symbol';
-        $charset_field_name = 'product_csv_importer_charset';
-        $file_field_name = 'product_csv_importer_file_import';
+				?><div class="product-csv-importer-admin-wrapper"><?php
 
-        ?><div class="product-csv-importer-admin-wrapper"><?php
-
-        if (isset($_POST[ $hidden_field_name ]) && $_POST[ $hidden_field_name ] == 'Y') {
-            if (Product_Csv_Importer_Admin::has_files_to_upload($file_field_name)) {
-                $file = wp_upload_bits($_FILES[$file_field_name]['name'], null,
-                        @file_get_contents($_FILES[$file_field_name]['tmp_name']));
-
-                if (false === $file['error'] && isset($file['file'])) {
-                    $this->parse_csv_file($file['file']);
-                } else {
-                    echo '<p>Ошибка: '.$file['error'].'</tr>';
-                }
-            } ?>
-	<div class="updated"><p><strong><?php _e('Загрузка товаров начата...'); ?></strong></tr></div>
-	<?php
-
+        /* if form is already sended */
+        if (isset($_POST['Submit'])) {
+            $is_valid = $this->is_received_data_valid();
         }
 
-        ?><h2><?=__('Products Import', 'product-csv-importer')?></h2>
+        if (isset($_POST[ $this->hidden_field_name ]) && $_POST[ $this->hidden_field_name ] == 'Y'
+                        && isset($is_valid) && $is_valid) {
+            ?><h2><?=__('Products import result', 'product-csv-importer')?></h2><?php
 
-        <img class="product_csv_importer_logo_large" src="<?=plugin_dir_url(__FILE__)?>images/icon-large.png" />
+            $file = wp_upload_bits($_FILES[$this->file_field_name]['name'], null,
+                    @file_get_contents($_FILES[$this->file_field_name]['tmp_name']));
 
-			<form enctype="multipart/form-data" name="product_csv_importer_form" method="post" action="">
-					<input type="hidden" name="<?php echo $hidden_field_name; ?>" value="Y">
-          <table class="form-table">
-              <tbody>
-      <tr>
-					<th scope="row"><label for="<?=$delimeter_field_name?>">
-							<?php echo __('Delimeter', 'product-csv-importer') ?>
-					</label></th>
-					<td><input class="regular-text" type="text" id="<?=$delimeter_field_name?>" name="<?=$delimeter_field_name?>" value="<?=self::$default_delimeter_symbol?>" /></td>
-			</tr>
+            if (false === $file['error'] && isset($file['file'])) {
+                $this->parse_csv_file($file['file']); ?>
+										<p>
+												<?=__('Created products: ', 'product-csv-importer')?><?=$this->count_created_products?>
+										</p>
+										<p>
+												<?=__('Updated products: ', 'product-csv-importer')?><?=$this->count_updated_products?>
+										</p>
+								<?php
+            } else {
+                if (isset($is_valid) && !$is_valid) : ?>
+										<div class="error notif">
+												<p>
+														<strong>
+																<?php echo __('Error: ', 'product-csv-importer') ?><?=$file['error']?>
+														</strong>
+												</p>
+										</div>
+								<?php endif;
+            }
+        } else {
+            ?><h2><?=__('Products import', 'product-csv-importer')?></h2>
 
-      <tr>
-					<th scope="row"><label for="<?=$enclosure_field_name?>">
-							<?php echo __('Enclosure', 'product-csv-importer') ?>
-					</label></th>
-					<td><input class="regular-text" type="text" id="<?=$enclosure_field_name?>" name="<?=$enclosure_field_name?>" value="<?=self::$default_enclosure_symbol?>" /></td>
-			</tr>
+		        <img class="product_csv_importer_logo_large" src="<?=plugin_dir_url(__FILE__)?>images/icon-large.png" />
 
-      <tr>
-					<th scope="row"><label for="<?=$charset_field_name?>">
-							<?php echo __('File charset', 'product-csv-importer') ?>
-					</label></th>
-					<td><select id="<?=$charset_field_name?>" name="<?=$charset_field_name?>">
-              <?php foreach ($charsets as $charset) : ?>
-                  <option<?php echo ($charset === Product_Csv_Importer_Admin::$default_charset) ? ' selected' : '' ?>>
-                      <?=$charset?>
-                  </option>
-              <?php endforeach; ?>
-          </select></td>
-			</tr>
+						<?php if (isset($is_valid) && !$is_valid) : ?>
+								<div class="error notif">
+										<p>
+												<strong>
+														<?php echo __('Form is not filled correctly. Perhaps you forgot to select the .csv file to import. Please, try again!', 'product-csv-importer') ?>
+												</strong>
+										</p>
+								</div>
+						<?php endif; ?>
 
-			<tr>
-					<td scope="row" colspan="2" style="padding-left: 0;"><div class="importer-file-field-wrap">
-            <span><?php echo __('Importing CSV-file', 'product-csv-importer') ?></span>
-    <label for="<?=$file_field_name?>">
-        <?php echo __('Select', 'product-csv-importer') ?><input class="regular-text" type="file" id="<?=$file_field_name?>" name="<?=$file_field_name?>" value="" />
-    </label></div></td>
-			</tr>
+						<form enctype="multipart/form-data" name="product_csv_importer_form" method="post" action="">
+								<input type="hidden" name="<?php echo $this->hidden_field_name; ?>" value="Y">
+					    	<table class="form-table">
+					          <tbody>
+									      <tr>
+														<th scope="row">
+																<label for="<?=$this->delimeter_field_name?>">
+																		<?php echo __('Delimeter', 'product-csv-importer') ?>
+																</label>
+														</th>
+														<td>
+																<input class="regular-text" type="text" maxlength="1" pattern="[^0-9A-Za-z]" id="<?=$this->delimeter_field_name?>" name="<?=$this->delimeter_field_name?>" value="<?=self::$default_delimeter_symbol?>" required />
+																<p class="description">
+																		<?php echo __('Character separating one cell from another', 'product-csv-importer')?>
+																</p>
+														</td>
+												</tr>
 
-			<tr><th></th><td>
-          <input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e('Save') ?>" /></td>
-			</tr>
+									      <tr>
+														<th scope="row"><label for="<?=$this->enclosure_field_name?>">
+																<?php echo __('Enclosure', 'product-csv-importer') ?>
+														</label></th>
+														<td>
+																<input class="regular-text" type="text" maxlength="1" pattern="[^0-9A-Za-z]" id="<?=$this->enclosure_field_name?>" name="<?=$this->enclosure_field_name?>" value="<?=self::$default_enclosure_symbol?>" required />
+																<p class="description">
+																		<?php echo __('Symbol in which the values of table cells are wrapped', 'product-csv-importer')?>
+																</p>
+														</td>
+												</tr>
 
-    </tbody>
-  </table>
+									      <tr>
+														<th scope="row"><label for="<?=$this->header_cells_row_field_name?>">
+																<?php echo __('Row number with header cells', 'product-csv-importer') ?>
+														</label></th>
+														<td>
+																<input class="regular-text" type="number" id="<?=$this->header_cells_row_field_name?>" name="<?=$this->header_cells_row_field_name?>" value="<?=self::$default_header_cells_row_number?>" required />
+																<p class="description">
+																		<?php echo __('The ordinal number of the line containing the names of the output parameters of the store, corresponding to each column of the .csv file', 'product-csv-importer')?>
+																</p>
+														</td>
+												</tr>
 
-			</form>
-      <script type="text/javascript">
-        (function( $ ) {
-            $('.importer-file-field-wrap').each(function() {
-              var parent = this;
-              $(this).find('input').change(function() {
-                var filepath = this.value;
-                var m = filepath.match(/([^\/\\]+)$/);
-                var filename = m[1];
-                $(parent).find('span').html(filename);
-              });
-           });
-        })( jQuery );
-      </script>
-	</div>
+									      <tr>
+														<th scope="row"><label for="<?=$this->charset_field_name?>">
+																<?php echo __('File charset', 'product-csv-importer') ?>
+														</label></th>
+														<td>
+																<select id="<?=$this->charset_field_name?>" name="<?=$this->charset_field_name?>">
+									              		<?php foreach (self::$charset_options as $charset) : ?>
+									                  		<option<?php echo ($charset === self::$default_charset) ? ' selected' : '' ?>>
+									                      		<?=$charset?>
+									                  		</option>
+									              		<?php endforeach; ?>
+									          		</select>
+																<p class="description">
+																		<?php echo __('If Microsoft Excel was used to create the .csv file, you must select the windows-1251 encoding. In most other cases (for example, LibreOffice Calc in Linux) the basic encoding is utf-8.', 'product-csv-importer')?>
+																</p>
+														</td>
+												</tr>
+												<tr>
+														<td scope="row" colspan="2" style="padding-left: 0;">
+																<div class="importer-file-field-wrap">
+												            <span>
+																				<?php echo __('Importing CSV-file', 'product-csv-importer') ?>
+																		</span>
+																    <label for="<?=$this->file_field_name?>">
+																        <?php echo __('Select', 'product-csv-importer') ?><input class="regular-text" type="file" id="<?=$this->file_field_name?>" name="<?=$this->file_field_name?>" value="" />
+																    </label>
+																</div>
+														</td>
+												</tr>
+												<tr>
+														<th></th>
+														<td>
+									          		<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e('Save') ?>" />
+														</td>
+												</tr>
+					    			</tbody>
+					  		</table>
+						</form>
+			      <script type="text/javascript">
+				        (function( $ ) {
+										var headerCellsRowNumberFieldId = '<?=$this->header_cells_row_field_name?>';
+										var headerCellsRowDomEl = document.getElementById(headerCellsRowNumberFieldId);
 
-	<?php
+										/* custom input file field start */
+				            $('.importer-file-field-wrap').each(function() {
+				              var parent = this;
+				              $(this).find('input').change(function() {
+				                var filepath = this.value;
+				                var m = filepath.match(/([^\/\\]+)$/);
+				                var filename = m[1];
+				                $(parent).find('span').html(filename);
+				              });
+				           });
+									 /* custom input file field end */
+
+									 /* numeric inputs initializing start */
+									 if (headerCellsRowDomEl) {
+											 $(headerCellsRowDomEl).numericInput(
+												 {
+														 allowFloat: false,
+														 allowNegative: false,
+														 min: 1,
+														 max: 9,
+												 }
+											);
+									 }
+									 /* numeric inputs initializing end */
+				        })( jQuery );
+			      </script><?php
+        }
+				?></div><?php
     }
 
     private function parse_csv_file($url)
@@ -286,23 +372,54 @@ class Product_Csv_Importer_Admin
             SplFileObject::SKIP_EMPTY |
             SplFileObject::READ_CSV;
 
+        $header_cells_row = $_POST[$this->header_cells_row_field_name];
+        $self = $this;
+        $row_counter = 1;
+
+        $enclosure_val_length = strlen($_POST[$this->enclosure_field_name]);
+        $enclosure_symbol =
+            ($enclosure_val_length > 1)
+            ? substr($_POST[$this->enclosure_field_name], $enclosure_val_length - 1)
+            : $_POST[$this->enclosure_field_name]
+        ;
+
         $config = new LexerConfig();
         $config
-            ->setDelimiter(";")           // Разделитель
-            ->setEnclosure("\"")          // Контейнер
-            ->setEscape("\\")             // Управляющий символ
+            ->setDelimiter($_POST[$this->delimeter_field_name])           // Разделитель
+            ->setEnclosure($enclosure_symbol)          // Контейнер
+            ->setEscape('\\')             // Управляющий символ
             ->setToCharset('UTF-8')       // Кодировка на выходе
-            ->setFromCharset('UTF-8');    // Кодировка файла-источника
+            ->setFromCharset($_POST[$this->charset_field_name]);    // Кодировка файла-источника
         $config->setFlags($config_flags);
 
         $lexer = new Lexer($config);
         $interpreter = new Interpreter();
-        $interpreter->addObserver(function(array $row) use (&$values) {
-            if (count($row) > 4) {
-                $sku = $row[4];
-                $product = Product_Csv_Importer_Admin::get_product_by_sku($sku);
-                ?><p>Артикул: <?=$sku?><br />Найденный товар: <?php echo ($product != null) ? $product->id : 'нет'; ?></tr><?php
+        $interpreter->addObserver(function (array $row) use (&$self, $header_cells_row, &$row_counter) {
+            if ($row_counter == $header_cells_row) {
+                foreach ($row as $cell) {
+                    $self->updated_parameters[] = $cell;
+                }
+            } else {
+                $data = array();
+                foreach ($self->updated_parameters as $index => $cell_name) {
+                    if (count($row) > $index) {
+                        $data[$cell_name] = $row[$index];
+                    }
+                }
+
+                if (isset($data['_sku'])) {
+                    $product = pci_get_product_by_sku($data['_sku']);
+                    if ($product != null) {
+                        if (pci_update_product_by_id($product->id, $data)) {
+                            ++$self->count_updated_products;
+                        }
+                    } else {
+                        pci_create_product($data);
+                        ++$self->count_created_products;
+                    }
+                }
             }
+            ++$row_counter;
         });
 
         $lexer->parse($url, $interpreter);

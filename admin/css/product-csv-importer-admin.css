@@ -41,8 +41,16 @@
     left: -9999px;
 }
 
+.product-csv-importer-admin-wrapper .description {
+		max-width: 350px;
+}
+
 .product_csv_importer_logo_large {
-    position: absolute;
-    max-height: 280px;
-    left: 630px;
+		position: absolute;
+	  max-height: 350px;
+	  left: 700px;
+}
+
+.product-csv-importer-admin-wrapper .notif {
+		max-width: 525px;
 }

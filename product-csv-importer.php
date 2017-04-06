@@ -24,13 +24,13 @@
  * Domain Path:       /languages
  */
 
- /**
-  * Load composer
-  */
- $composer = dirname(__FILE__) . '/vendor/autoload.php';
- if ( file_exists($composer) ) {
-     require_once $composer;
- }
+/**
+ * Load composer
+ */
+$composer = dirname(__FILE__) . '/vendor/autoload.php';
+if ( file_exists($composer) ) {
+		require_once $composer;
+}
 
 /**
  * If this file is called directly, abort.
@@ -38,7 +38,6 @@
 if (!defined('WPINC')) {
     die;
 }
-
 
 /**
  * The code that runs during plugin activation.
@@ -84,3 +83,146 @@ function run_product_csv_importer()
     $plugin->run();
 }
 run_product_csv_importer();
+
+/**
+ * Custom utility methods start
+ */
+
+/**
+ * Getting WC_Product by SKU or 'null' if product SKU not fount
+ *
+ * @since    1.0.0
+ *
+ * @param  string     $sku     The product SKU (marking)
+ * @return WC_Product $product The product entity
+ */
+function pci_get_product_by_sku( $sku )
+{
+		global $wpdb;
+		$product = null;
+		$sql_query = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1";
+
+		$product_id = $wpdb->get_var( $wpdb->prepare(
+				$sql_query, $sku ) );
+		if ( $product_id )
+				$product = new WC_Product( $product_id );
+
+		return $product;
+}
+
+/**
+ * Updating WC product post
+ *
+ * @since    1.0.0
+ *
+ * @return boolean
+ */
+function pci_update_product_by_id( $post_id, $data )
+{
+		if ( $post_id ) {
+				wp_set_object_terms( $post_id, $data['product_cat'], 'product_cat' );
+				wp_set_object_terms( $post_id, Constants::DEFAULT_PRODUCT_TYPE, 'product_type' );
+
+				foreach ($data as $key => $val) {
+						if ($key === '_sku') {
+								$attachment_dir = wp_upload_dir();
+								$new_filename = wp_unique_filename( $attachment_dir['path'], $val . Constants::DEFAULT_ATTACHMENT_EXT );
+								$attachment_fullpath = $attachment_dir['path'] . '/' . $new_filename;
+								$product_image_fullpath = get_home_path() .
+										Constants::DEFAULT_DIRNAME_WITH_ATTACHMENTS .
+										$val .
+										Constants::DEFAULT_ATTACHMENT_EXT;
+								if (file_exists($product_image_fullpath)) {
+										if (copy($product_image_fullpath, $attachment_fullpath)) {
+												$attachment = array(
+								            'guid' => $attachment_fullpath,
+								            'post_type' => 'attachment',
+								            'post_title' => $attachment_fullpath,
+								            'post_content' => '',
+								            'post_parent' => $post_id,
+								            'post_status' => 'publish',
+								            'post_mime_type' => 'image/jpeg',
+								            'post_author'   => 2
+								        );
+
+								        // Attach the image to post
+								        $attach_id = wp_insert_attachment( $attachment, $attachment_fullpath, $post_id );
+												if ($attach_id) {
+														add_post_meta($post_id, '_thumbnail_id', $attach_id);
+												}
+										}
+								}
+
+						}
+						update_post_meta( $post_id, $key, $val );
+				}
+
+				if (isset($data['brand'])) {
+						$term_taxonomy_ids = wp_set_object_terms( $post_id, $data['brand'], Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME, true );
+						$brand_attribute = array(
+								Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME => array(
+										'name' => Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME,
+										'value' => $data['brand'],
+										'is_visible' => 1,
+										'is_variation' => 1,
+										'is_taxonomy' => 1
+								)
+
+						);
+						update_post_meta( $post_id, '_product_attributes', $brand_attribute);
+				}
+
+				update_post_meta( $post_id, '_visibility', 'visible' );
+				update_post_meta( $post_id, '_stock_status', 'instock');
+				update_post_meta( $post_id, 'total_sales', '0');
+				update_post_meta( $post_id, '_downloadable', 'yes');
+				update_post_meta( $post_id, '_virtual', 'yes');
+				update_post_meta( $post_id, '_regular_price', "1" );
+				update_post_meta( $post_id, '_sale_price', "1" );
+				update_post_meta( $post_id, '_purchase_note', "" );
+				update_post_meta( $post_id, '_featured', "no" );
+				update_post_meta( $post_id, '_weight', "" );
+				update_post_meta( $post_id, '_length', "" );
+				update_post_meta( $post_id, '_width', "" );
+				update_post_meta( $post_id, '_height', "" );
+				update_post_meta( $post_id, '_sale_price_dates_from', "" );
+				update_post_meta( $post_id, '_sale_price_dates_to', "" );
+				update_post_meta( $post_id, '_sold_individually', "" );
+				update_post_meta( $post_id, '_manage_stock', "no" );
+				update_post_meta( $post_id, '_backorders', "no" );
+				update_post_meta( $post_id, '_stock', "" );
+
+				return true;
+		}
+
+		return false;
+}
+
+/**
+ * Creating WC product post
+ *
+ * @since    1.0.0
+ *
+ * @return int $post_id The product post id
+ */
+function pci_create_product( $data )
+{
+		$post = array(
+				'post_author' 	=> Constants::AUTHOR_USER_ID,
+				'post_content' 	=> (isset($data['post_content'])) ? $data['post_content'] : '',
+				'post_status' 	=> Constants::DEFAULT_POST_STATUS,
+				'post_title' 		=> (isset($data['post_title'])) ? $data['post_title'] : '',
+				'post_type' 		=> Constants::DEFAULT_POST_TYPE,
+		);
+
+		// Create post
+		$post_id = wp_insert_post( $post );
+		// Update all woocommerce meta fields of a new product post
+		pci_update_product_by_id( $post_id, $data );
+
+		return $post_id;
+}
+
+/**
+ * Custom utility methods end
+ */
