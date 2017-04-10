@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-04-06 16:50+0300\n"
-"PO-Revision-Date: 2017-04-06 16:51+0300\n"
+"POT-Creation-Date: 2017-04-10 23:46+0300\n"
+"PO-Revision-Date: 2017-04-10 23:46+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -17,33 +17,32 @@ msgstr ""
 "X-Poedit-SearchPath-0: languages\n"
 "X-Poedit-SearchPath-1: admin\n"
 
-#: admin/class-product-csv-importer-admin.php:188
-#: admin/class-product-csv-importer-admin.php:189
-#: admin/class-product-csv-importer-admin.php:239
+#: admin/class-product-csv-importer-admin.php:181
+#: admin/class-product-csv-importer-admin.php:238
 msgid "Products import"
 msgstr "Импорт товаров"
 
-#: admin/class-product-csv-importer-admin.php:201
+#: admin/class-product-csv-importer-admin.php:190
 msgid "You do not have sufficient permissions to access this page."
 msgstr "У Вас недостаточно прав для доступа к данной странице."
 
-#: admin/class-product-csv-importer-admin.php:213
+#: admin/class-product-csv-importer-admin.php:202
 msgid "Products import result"
 msgstr "Результат импорта товаров:"
 
-#: admin/class-product-csv-importer-admin.php:221
+#: admin/class-product-csv-importer-admin.php:213
 msgid "Created products: "
 msgstr "Товаров создано: "
 
-#: admin/class-product-csv-importer-admin.php:224
+#: admin/class-product-csv-importer-admin.php:217
 msgid "Updated products: "
 msgstr "Товаров обновлено: "
 
-#: admin/class-product-csv-importer-admin.php:232
+#: admin/class-product-csv-importer-admin.php:229
 msgid "Error: "
 msgstr "Ошибка: "
 
-#: admin/class-product-csv-importer-admin.php:247
+#: admin/class-product-csv-importer-admin.php:244
 msgid ""
 "Form is not filled correctly. Perhaps you forgot to select the .csv file to "
 "import. Please, try again!"
@@ -51,27 +50,27 @@ msgstr ""
 "Форма заполнена некорректно. Возможно, Вы забыли выбрать .csv файл для  "
 "импорта. Повторите, пожалуйста, Вашу попытку еще раз!"
 
-#: admin/class-product-csv-importer-admin.php:260
+#: admin/class-product-csv-importer-admin.php:256
 msgid "Delimeter"
 msgstr "Разделитель"
 
-#: admin/class-product-csv-importer-admin.php:266
+#: admin/class-product-csv-importer-admin.php:262
 msgid "Character separating one cell from another"
 msgstr "Символ отделяющий одну ячейку таблицы от другой"
 
-#: admin/class-product-csv-importer-admin.php:273
+#: admin/class-product-csv-importer-admin.php:269
 msgid "Enclosure"
 msgstr "Контейнер"
 
-#: admin/class-product-csv-importer-admin.php:278
+#: admin/class-product-csv-importer-admin.php:275
 msgid "Symbol in which the values of table cells are wrapped"
 msgstr "Символ в который \"завернуты\" все значения ячеек таблицы "
 
-#: admin/class-product-csv-importer-admin.php:285
+#: admin/class-product-csv-importer-admin.php:282
 msgid "Row number with header cells"
 msgstr "№ строки с заголовочными ячейками"
 
-#: admin/class-product-csv-importer-admin.php:290
+#: admin/class-product-csv-importer-admin.php:288
 msgid ""
 "The ordinal number of the line containing the names of the output parameters "
 "of the store, corresponding to each column of the .csv file"
@@ -79,11 +78,11 @@ msgstr ""
 "Порядковый номер строки, содержащей названия параметров продукции магазина, "
 "соответствующих каждой отдельной колонке .csv файла"
 
-#: admin/class-product-csv-importer-admin.php:297
+#: admin/class-product-csv-importer-admin.php:295
 msgid "File charset"
 msgstr "Кодировка файла"
 
-#: admin/class-product-csv-importer-admin.php:308
+#: admin/class-product-csv-importer-admin.php:307
 msgid ""
 "If Microsoft Excel was used to create the .csv file, you must select the "
 "windows-1251 encoding. In most other cases (for example, LibreOffice Calc in "
@@ -93,13 +92,17 @@ msgstr ""
 "выбрать кодировку windows-1251. В большинстве других случаев (например, "
 "LibreOffice Calc в Linux) базовой кодировкой является utf-8."
 
-#: admin/class-product-csv-importer-admin.php:316
+#: admin/class-product-csv-importer-admin.php:315
 msgid "Importing CSV-file"
 msgstr "Файл импорта (.csv)"
 
-#: admin/class-product-csv-importer-admin.php:319
+#: admin/class-product-csv-importer-admin.php:318
 msgid "Select"
 msgstr "Выбрать"
+
+#: admin/class-product-csv-importer-admin.php:328
+msgid "Save"
+msgstr "Отправить "
 
 #~ msgid "Row No. with header cells"
 #~ msgstr "№ строки с заголовочными ячейками"
