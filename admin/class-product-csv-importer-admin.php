@@ -1,11 +1,10 @@
 <?php
 
-use \SplFileObject as SplFileObject;
 use \Exception as Exception;
-use Goodby\CSV\Import\Standard\Lexer;
+use \SplFileObject as SplFileObject;
 use Goodby\CSV\Import\Standard\Interpreter;
+use Goodby\CSV\Import\Standard\Lexer;
 use Goodby\CSV\Import\Standard\LexerConfig;
-use Goodby\CSV\Import\Standard\Exception\StrictViolationException;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -15,7 +14,6 @@ use Goodby\CSV\Import\Standard\Exception\StrictViolationException;
  *
  * @author     Anton Babinin <wkyborgw@gmail.com>
  */
-
 class Product_Csv_Importer_Admin
 {
     /**
@@ -61,7 +59,7 @@ class Product_Csv_Importer_Admin
      *
      * @var array Charset options
      */
-    public static $charset_options = array('utf-32', 'utf-16', 'utf-8', 'koi8-r', 'windows-1251', 'windows-1252');
+    public static $charset_options = ['utf-32', 'utf-16', 'utf-8', 'koi8-r', 'windows-1251', 'windows-1252'];
 
     /**
      * Names of all value fields in the form (eg. inputs and selects).
@@ -75,7 +73,7 @@ class Product_Csv_Importer_Admin
     private $file_field_name = 'product_csv_importer_file_import';
     private $header_cells_row_field_name = 'product_csv_importer_header_cells_row_number';
 
-    public $updated_parameters = array();
+    public $updated_parameters = [];
     public $count_created_products = 0;
     public $count_updated_products = 0;
 
@@ -108,7 +106,7 @@ class Product_Csv_Importer_Admin
     public function __construct($plugin_name, $version)
     {
         $this->plugin_name = $plugin_name;
-        $this->version     = $version;
+        $this->version = $version;
     }
 
     public static function has_files_to_upload($id)
@@ -121,6 +119,7 @@ class Product_Csv_Importer_Admin
         if (!self::has_files_to_upload($this->file_field_name) || !$_FILES[$this->file_field_name]['name']) {
             return false;
         }
+
         return true;
     }
 
@@ -142,7 +141,7 @@ class Product_Csv_Importer_Admin
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/product-csv-importer-admin.css', array(), $this->version, 'all');
+        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__).'css/product-csv-importer-admin.css', [], $this->version, 'all');
     }
 
     /**
@@ -163,12 +162,12 @@ class Product_Csv_Importer_Admin
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/product-csv-importer-admin.js', array(
-            'jquery'
-        ), $this->version, false);
-        wp_enqueue_script('jquery-plugin-numeric-input', plugin_dir_url(__FILE__) . 'js/numericInput.min.js', array(
-            'jquery'
-        ), $this->version, false);
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__).'js/product-csv-importer-admin.js', [
+            'jquery',
+        ], $this->version, false);
+        wp_enqueue_script('jquery-plugin-numeric-input', plugin_dir_url(__FILE__).'js/numericInput.min.js', [
+            'jquery',
+        ], $this->version, false);
     }
 
     /**
@@ -178,18 +177,17 @@ class Product_Csv_Importer_Admin
      */
     public function add_menu_pages()
     {
-        add_menu_page(__('Products import', 'product-csv-importer'), __('Products import', 'product-csv-importer'), 'manage_options', 'import_page', array(
+        add_menu_page(__('Products import', 'product-csv-importer'), __('Products import', 'product-csv-importer'), 'manage_options', 'import_page', [
             $this,
-            'import_page_html'
-        ), plugin_dir_url(__FILE__) . 'images/icon.png', 59);
+            'import_page_html',
+        ], plugin_dir_url(__FILE__).'images/icon.png', 59);
     }
 
     public function import_page_html()
     {
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'product-csv-importer'));
-        }
-        ?><div class="product-csv-importer-admin-wrapper"><?php
+        } ?><div class="product-csv-importer-admin-wrapper"><?php
 
         /* if form is already sended */
         if (isset($_POST['Submit'])) {
@@ -198,7 +196,6 @@ class Product_Csv_Importer_Admin
 
         if (isset($_POST[$this->hidden_field_name]) &&
             $_POST[$this->hidden_field_name] == 'Y' && isset($is_valid) && $is_valid) {
-
             ?><h2><?= __('Products import result', 'product-csv-importer') ?></h2><?php
 
             $file = wp_upload_bits($_FILES[$this->file_field_name]['name'],
@@ -232,7 +229,6 @@ class Product_Csv_Importer_Admin
                     </div>
                 <?php
             endif;
-
         } else {
             ?><h2><?= __('Products import', 'product-csv-importer') ?></h2>
             <img class="product_csv_importer_logo_large" src="<?= plugin_dir_url(__FILE__) ?>images/icon-large.png" />
@@ -284,7 +280,7 @@ class Product_Csv_Importer_Admin
                   <td>
                     <input class="regular-text" type="number" id="<?= $this->header_cells_row_field_name ?>" name="<?= $this->header_cells_row_field_name ?>" value="<?= self::$default_header_cells_row_number ?>" required />
                     <p class="description">
-                      <?php echo __('The ordinal number of the line containing the names of the output parameters of the store, corresponding to each column of the .csv file', 'product-csv-importer');?>
+                      <?php echo __('The ordinal number of the line containing the names of the output parameters of the store, corresponding to each column of the .csv file', 'product-csv-importer'); ?>
                     </p>
                   </td>
                 </tr>
@@ -297,7 +293,7 @@ class Product_Csv_Importer_Admin
                   <td>
                     <select id="<?= $this->charset_field_name ?>" name="<?= $this->charset_field_name ?>">
                       <?php foreach (self::$charset_options as $charset): ?>
-                          <option <?php echo ($charset === self::$default_charset) ? ' selected' : '';?>>
+                          <option <?php echo ($charset === self::$default_charset) ? ' selected' : ''; ?>>
                             <?= $charset ?>
                           </option>
                       <?php endforeach; ?>
@@ -362,37 +358,38 @@ class Product_Csv_Importer_Admin
               }
               )( jQuery );
             </script>
-        <?php } ?></div>
+        <?php 
+        } ?></div>
 
         <?php
+
     }
 
     private function parse_csv_file($url)
     {
-        $values               = array();
-        $config_flags         = SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::READ_CSV;
-        $header_cells_row     = $_POST[$this->header_cells_row_field_name];
-        $self                 = $this;
-        $row_counter          = 1;
+        $values = [];
+        $config_flags = SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::READ_CSV;
+        $header_cells_row = $_POST[$this->header_cells_row_field_name];
+        $self = $this;
+        $row_counter = 1;
         $enclosure_val_length = strlen($_POST[$this->enclosure_field_name]);
-        $enclosure_symbol     = ($enclosure_val_length > 1) ? substr($_POST[$this->enclosure_field_name], $enclosure_val_length - 1) : $_POST[$this->enclosure_field_name];
-        $config               = new LexerConfig();
+        $enclosure_symbol = ($enclosure_val_length > 1) ? substr($_POST[$this->enclosure_field_name], $enclosure_val_length - 1) : $_POST[$this->enclosure_field_name];
+        $config = new LexerConfig();
         $config->setDelimiter($_POST[$this->delimeter_field_name]) // Разделитель
             ->setEnclosure($enclosure_symbol) // Контейнер
-            ->setEscape("\\") // Управляющий символ
+            ->setEscape('\\') // Управляющий символ
             ->setToCharset('UTF-8') // Кодировка на выходе
             ->setFromCharset($_POST[$this->charset_field_name]); // Кодировка файла-источника
         $config->setFlags($config_flags);
-        $lexer       = new Lexer($config);
+        $lexer = new Lexer($config);
         $interpreter = new Interpreter();
-        $interpreter->addObserver(function(array $row) use (&$self, $header_cells_row, &$row_counter)
-        {
+        $interpreter->addObserver(function (array $row) use (&$self, $header_cells_row, &$row_counter) {
             if ($row_counter == $header_cells_row) {
                 foreach ($row as $cell) {
                     $self->updated_parameters[] = $cell;
                 }
             } else {
-                $data = array();
+                $data = [];
                 foreach ($self->updated_parameters as $index => $cell_name) {
                     if (count($row) > $index) {
                         $data[$cell_name] = $row[$index];
@@ -415,8 +412,7 @@ class Product_Csv_Importer_Admin
 
         try {
             $lexer->parse($url, $interpreter);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 

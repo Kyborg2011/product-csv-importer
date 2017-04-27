@@ -27,7 +27,7 @@
 /**
  * Load composer.
  */
-$composer = dirname(__FILE__) . '/vendor/autoload.php';
+$composer = dirname(__FILE__).'/vendor/autoload.php';
 if (file_exists($composer)) {
     require_once $composer;
 }
@@ -45,7 +45,7 @@ if (!defined('WPINC')) {
  */
 function activate_product_csv_importer()
 {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-product-csv-importer-activator.php';
+    require_once plugin_dir_path(__FILE__).'includes/class-product-csv-importer-activator.php';
     Product_Csv_Importer_Activator::activate();
 }
 
@@ -55,7 +55,7 @@ function activate_product_csv_importer()
  */
 function deactivate_product_csv_importer()
 {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-product-csv-importer-deactivator.php';
+    require_once plugin_dir_path(__FILE__).'includes/class-product-csv-importer-deactivator.php';
     Product_Csv_Importer_Deactivator::deactivate();
 }
 
@@ -66,7 +66,7 @@ register_deactivation_hook(__FILE__, 'deactivate_product_csv_importer');
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-product-csv-importer.php';
+require plugin_dir_path(__FILE__).'includes/class-product-csv-importer.php';
 
 /**
  * Begins execution of the plugin.
@@ -100,7 +100,7 @@ run_product_csv_importer();
 function pci_get_product_by_sku($sku)
 {
     global $wpdb;
-    $product   = null;
+    $product = null;
     $sql_query = "SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1";
 
     $product_id = $wpdb->get_var($wpdb->prepare($sql_query, $sku));
@@ -126,13 +126,13 @@ function pci_update_product_by_id($post_id, $data)
 
         foreach ($data as $key => $val) {
             if ($key === '_sku') {
-                $attachment_dir         = wp_upload_dir();
-                $new_filename           = wp_unique_filename($attachment_dir['path'], $val . Constants::DEFAULT_ATTACHMENT_EXT);
-                $attachment_fullpath    = $attachment_dir['path'] . '/' . $new_filename;
-                $product_image_fullpath = get_home_path() . Constants::DEFAULT_DIRNAME_WITH_ATTACHMENTS . $val . Constants::DEFAULT_ATTACHMENT_EXT;
+                $attachment_dir = wp_upload_dir();
+                $new_filename = wp_unique_filename($attachment_dir['path'], $val.Constants::DEFAULT_ATTACHMENT_EXT);
+                $attachment_fullpath = $attachment_dir['path'].'/'.$new_filename;
+                $product_image_fullpath = get_home_path().Constants::DEFAULT_DIRNAME_WITH_ATTACHMENTS.$val.Constants::DEFAULT_ATTACHMENT_EXT;
                 if (file_exists($product_image_fullpath)) {
                     if (copy($product_image_fullpath, $attachment_fullpath)) {
-                        $attachment = array(
+                        $attachment = [
                             'guid' => $attachment_fullpath,
                             'post_type' => 'attachment',
                             'post_title' => $attachment_fullpath,
@@ -140,8 +140,8 @@ function pci_update_product_by_id($post_id, $data)
                             'post_parent' => $post_id,
                             'post_status' => 'publish',
                             'post_mime_type' => 'image/jpeg',
-                            'post_author' => 2
-                        );
+                            'post_author' => 2,
+                        ];
 
                         // Attach the image to post
                         $attach_id = wp_insert_attachment($attachment, $attachment_fullpath, $post_id);
@@ -156,15 +156,15 @@ function pci_update_product_by_id($post_id, $data)
 
         if (isset($data['brand'])) {
             $term_taxonomy_ids = wp_set_object_terms($post_id, $data['brand'], Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME, true);
-            $brand_attribute   = array(
-                Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME => array(
+            $brand_attribute = [
+                Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME => [
                     'name' => Constants::DEFAULT_MANUFACTURER_ATTRIBUTE_NAME,
                     'value' => $data['brand'],
                     'is_visible' => 1,
                     'is_variation' => 1,
-                    'is_taxonomy' => 1
-                )
-            );
+                    'is_taxonomy' => 1,
+                ],
+            ];
             update_post_meta($post_id, '_product_attributes', $brand_attribute);
         }
 
@@ -203,13 +203,13 @@ function pci_update_product_by_id($post_id, $data)
  */
 function pci_create_product($data)
 {
-    $post = array(
+    $post = [
         'post_author' => Constants::AUTHOR_USER_ID,
         'post_content' => (isset($data['post_content'])) ? $data['post_content'] : '',
         'post_status' => Constants::DEFAULT_POST_STATUS,
         'post_title' => (isset($data['post_title'])) ? $data['post_title'] : '',
-        'post_type' => Constants::DEFAULT_POST_TYPE
-    );
+        'post_type' => Constants::DEFAULT_POST_TYPE,
+    ];
 
     // Create post
     $post_id = wp_insert_post($post);
@@ -217,6 +217,30 @@ function pci_create_product($data)
     pci_update_product_by_id($post_id, $data);
 
     return $post_id;
+}
+
+/**
+ * Creating MYSQL table for faster CSV import.
+ *
+ * @param string $fields Columns for creating MySQL table
+ *
+ * @since    1.0.0
+ */
+function pci_create_table($fields)
+{
+    // do NOT forget this global
+    global $wpdb;
+
+    // this if statement makes sure that the table doe not exist already
+    if ($wpdb->get_var('show tables like ' . Constants::INTERMEDIATE_TABLE_NAME)
+        !== Constants::INTERMEDIATE_TABLE_NAME) {
+
+        $sql = 'CREATE TABLE ' . Constants::INTERMEDIATE_TABLE_NAME .
+            ' (' . $fields . ');';
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql);
+    }
 }
 
 /*

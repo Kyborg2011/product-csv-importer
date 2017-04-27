@@ -21,11 +21,9 @@
  *
  * @link       https://github.com/Kyborg2011
  * @since      1.0.0
- *
- * @package    Product_Csv_Importer
  */
 
 // If uninstall not called from WordPress, then exit.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	exit;
+if (!defined('WP_UNINSTALL_PLUGIN')) {
+    exit;
 }
