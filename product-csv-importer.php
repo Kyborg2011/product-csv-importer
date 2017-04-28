@@ -220,7 +220,7 @@ function pci_create_product($data)
 }
 
 /**
- * Creating MYSQL table for faster CSV import.
+ * Create MYSQL table for faster CSV import.
  *
  * @param string $fields Columns for creating MySQL table
  *
@@ -231,17 +231,121 @@ function pci_create_table($fields)
     // do NOT forget this global
     global $wpdb;
 
-    // this if statement makes sure that the table doe not exist already
-    if ($wpdb->get_var('show tables like ' . Constants::INTERMEDIATE_TABLE_NAME)
-        !== Constants::INTERMEDIATE_TABLE_NAME) {
-
-        $sql = 'CREATE TABLE ' . Constants::INTERMEDIATE_TABLE_NAME .
-            ' (' . $fields . ');';
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta($sql);
+    // if the table is already exists in DB - remove it
+    if ($wpdb->get_var("SHOW TABLES LIKE '".Constants::INTERMEDIATE_TABLE_NAME."'")
+        === Constants::INTERMEDIATE_TABLE_NAME) {
+        $wpdb->query('DROP TABLE '.Constants::INTERMEDIATE_TABLE_NAME);
     }
+
+    $sql = 'CREATE TABLE '.Constants::INTERMEDIATE_TABLE_NAME.' ('.
+        $fields.');';
+    require_once ABSPATH.'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
 }
+
+/**
+ * Load data from .csv file to MySQL table.
+ *
+ * @param string $file_name Full absolute path to uploadded .csv file for importing
+ *
+ * @since    1.0.0
+ */
+function pci_load_csv_into_mysql($file_name)
+{
+    // do NOT forget this global
+    global $wpdb;
+
+    $table_name = Constants::INTERMEDIATE_TABLE_NAME;
+
+    $fields_terminated_by = Product_Csv_Importer_Admin::$delimeter_symbol;
+    $optionally_enclosed_by = Product_Csv_Importer_Admin::$enclosure_symbol;
+    if ($optionally_enclosed_by === Product_Csv_Importer_Admin::$default_enclosure_symbol) {
+        $optionally_enclosed_by = '"';
+    }
+
+    $query = "LOAD DATA LOCAL INFILE '$file_name'
+     INTO TABLE $table_name
+     FIELDS TERMINATED BY '$fields_terminated_by'
+     ENCLOSED BY '$optionally_enclosed_by'
+     LINES TERMINATED BY '\n'
+     IGNORE 1 LINES";
+
+    $wpdb->query($query);
+}
+
+/**
+ * Action used for processing data from .csv file to working entities on WP + WC website.
+ *
+ * @since    1.0.0
+ */
+function pci_process_data_ajax_action()
+{
+    global $wpdb;
+
+    $result = [];
+    $count_updated_products = 0;
+    $count_created_products = 0;
+    $table_name = Constants::INTERMEDIATE_TABLE_NAME;
+
+    // Default limit value
+    $limit = 50;
+    // Default offset value
+    $offset = 0;
+
+    if (isset($_POST['limit']) && $_POST['limit']) {
+        $limit = intval(strip_tags(trim($_POST['limit'])));
+    }
+    if (isset($_POST['offset']) && $_POST['offset']) {
+        $offset = intval(strip_tags(trim($_POST['offset'])));
+    }
+
+    $querystr = "SELECT * FROM $table_name LIMIT $limit OFFSET $offset";
+    $importing_data = $wpdb->get_results($querystr, ARRAY_A);
+    $number_of_current_entities = count($importing_data);
+    $result['number'] = $number_of_current_entities;
+
+    /* Processing some debug information, when $wpdb gots an error */
+    if ($wpdb->last_error) {
+        $result = [
+            'error' => 'MySQL database select query error',
+            'wpdb_last_error' => $wpdb->last_error,
+            'count' => 0,
+        ];
+        wp_send_json($result);
+        wp_die();
+    }
+
+    /* Processing error-response, when nothing not found in database */
+    if (!$number_of_current_entities) {
+        $result = [
+            'error' => 'Entities not found',
+            'count' => 0,
+        ];
+        wp_send_json($result);
+        wp_die();
+    }
+
+    foreach ($importing_data as $data) {
+        if (isset($data['_sku'])) {
+            $product = pci_get_product_by_sku($data['_sku']);
+            if ($product != null) {
+                if (pci_update_product_by_id($product->id, $data)) {
+                    ++$count_updated_products;
+                }
+            } else {
+                pci_create_product($data);
+                ++$count_created_products;
+            }
+        }
+    }
+
+    $result['count_created_products'] = $count_created_products;
+    $result['count_updated_products'] = $count_updated_products;
+
+    wp_send_json($result);
+    wp_die();
+}
+add_action('wp_ajax_pci_process_data_ajax_action', 'pci_process_data_ajax_action');
 
 /*
  * Custom utility methods end

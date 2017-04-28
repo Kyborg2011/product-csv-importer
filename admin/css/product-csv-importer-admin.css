@@ -3,6 +3,8 @@
  * included in this file.
  */
 
+@import url('http://fonts.googleapis.com/css?family=Raleway:300');
+
 .toplevel_page_import_page .wp-menu-image img {
     width: 16px;
     height: 16px;
@@ -53,4 +55,79 @@
 
 .product-csv-importer-admin-wrapper .notif {
 		max-width: 525px;
+}
+
+.pci-resulted-row {
+    display: none;
+}
+
+#product-csv-importer-progress-bar {
+    margin: 20px;
+    width: 200px;
+    height: 200px;
+    position: relative;
+    margin: 20px auto;
+}
+
+.product-csv-importer-resulted-block table {
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.product-csv-importer-resulted-block table th {
+    height: 35px;
+    font-size: 20px;
+    background: #444;
+    text-transform: uppercase;
+    color: #C8E0F4;
+    font-weight: 300;
+    letter-spacing: 2px;
+    font-family: 'Raleway', sans-serif;
+    cursor: pointer;
+}
+
+.product-csv-importer-resulted-block table th:hover {
+    background: #0073aa;
+}
+
+.product-csv-importer-resulted-block table th span {
+    display: inline-block;
+    padding-bottom: 2px;
+    border-bottom: 1px #C8E0F4 dashed;
+    color: #C8E0F4;
+}
+
+.product-csv-importer-resulted-block table td {
+    border: 1px #444 solid;
+}
+
+.product-csv-importer-progress-bar-cell {
+    border: 1px #344055 solid;
+    background: #344055;
+    padding: 75px 0;
+}
+
+.pci-working-box {
+    display: inline-block;
+}
+
+.pci-working-box > h2 {
+    padding: 0 0 15px 20px;
+    cursor: auto !important;
+}
+
+.pci-working-box {
+    background: #C8E0F4;
+    border: 1px #000 solid;
+    border-radius: 15px;
+}
+
+.pci-stats-row > td {
+    width: 32%;
+    background: #344055;
+    text-align: center;
+}
+
+#pci-default-progress-bar-text {
+    display: none;
 }

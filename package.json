@@ -1,0 +1,19 @@
+{
+  "name": "product-csv-importer",
+  "version": "1.0.0",
+  "description": "WordPress plugin used for importing products to WooCommerce from CSV format",
+  "author": "Anton Babinin <wkyborgw@gmail.com>",
+  "license": "GPL-2.0",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-idiomatic": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kyborg2011/product-csv-importer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kyborg2011/product-csv-importer/issues"
+  }
+}
