@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-04-10 23:46+0300\n"
-"PO-Revision-Date: 2017-04-10 23:46+0300\n"
+"POT-Creation-Date: 2017-04-28 12:39+0300\n"
+"PO-Revision-Date: 2017-04-28 13:09+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -17,32 +17,55 @@ msgstr ""
 "X-Poedit-SearchPath-0: languages\n"
 "X-Poedit-SearchPath-1: admin\n"
 
-#: admin/class-product-csv-importer-admin.php:181
-#: admin/class-product-csv-importer-admin.php:238
+#: admin/class-product-csv-importer-admin.php:164
+#: admin/class-product-csv-importer-admin.php:322
 msgid "Products import"
 msgstr "Импорт товаров"
 
-#: admin/class-product-csv-importer-admin.php:190
+#: admin/class-product-csv-importer-admin.php:173
 msgid "You do not have sufficient permissions to access this page."
 msgstr "У Вас недостаточно прав для доступа к данной странице."
 
-#: admin/class-product-csv-importer-admin.php:202
+#: admin/class-product-csv-importer-admin.php:183
 msgid "Products import result"
 msgstr "Результат импорта товаров:"
 
+#: admin/class-product-csv-importer-admin.php:202
+msgid "Products"
+msgstr "Магазин \"Лидер Секьюрити\" / Товары"
+
+#: admin/class-product-csv-importer-admin.php:205
+msgid "Added"
+msgstr "Добавлено"
+
+#: admin/class-product-csv-importer-admin.php:206
+msgid "Edited"
+msgstr "Отредактировано"
+
+#: admin/class-product-csv-importer-admin.php:207
+msgid "Not Found"
+msgstr "Не найдено"
+
 #: admin/class-product-csv-importer-admin.php:213
-msgid "Created products: "
-msgstr "Товаров создано: "
+msgid "Uploading process"
+msgstr "Идет процесс импорта базы"
 
-#: admin/class-product-csv-importer-admin.php:217
-msgid "Updated products: "
-msgstr "Товаров обновлено: "
+#: admin/class-product-csv-importer-admin.php:220
+#: admin/class-product-csv-importer-admin.php:223
+msgid "Total:"
+msgstr "Кол-во товаров в .csv-файле"
 
-#: admin/class-product-csv-importer-admin.php:229
-msgid "Error: "
-msgstr "Ошибка: "
+#: admin/class-product-csv-importer-admin.php:220
+#: admin/class-product-csv-importer-admin.php:223
+msgid " items"
+msgstr " уникальных акртикулов"
 
-#: admin/class-product-csv-importer-admin.php:244
+#: admin/class-product-csv-importer-admin.php:296
+msgid "Loading"
+msgstr "Загрузка"
+
+#: admin/class-product-csv-importer-admin.php:315
+#: admin/class-product-csv-importer-admin.php:328
 msgid ""
 "Form is not filled correctly. Perhaps you forgot to select the .csv file to "
 "import. Please, try again!"
@@ -50,27 +73,27 @@ msgstr ""
 "Форма заполнена некорректно. Возможно, Вы забыли выбрать .csv файл для  "
 "импорта. Повторите, пожалуйста, Вашу попытку еще раз!"
 
-#: admin/class-product-csv-importer-admin.php:256
+#: admin/class-product-csv-importer-admin.php:340
 msgid "Delimeter"
 msgstr "Разделитель"
 
-#: admin/class-product-csv-importer-admin.php:262
+#: admin/class-product-csv-importer-admin.php:346
 msgid "Character separating one cell from another"
 msgstr "Символ отделяющий одну ячейку таблицы от другой"
 
-#: admin/class-product-csv-importer-admin.php:269
+#: admin/class-product-csv-importer-admin.php:353
 msgid "Enclosure"
 msgstr "Контейнер"
 
-#: admin/class-product-csv-importer-admin.php:275
+#: admin/class-product-csv-importer-admin.php:359
 msgid "Symbol in which the values of table cells are wrapped"
 msgstr "Символ в который \"завернуты\" все значения ячеек таблицы "
 
-#: admin/class-product-csv-importer-admin.php:282
+#: admin/class-product-csv-importer-admin.php:366
 msgid "Row number with header cells"
 msgstr "№ строки с заголовочными ячейками"
 
-#: admin/class-product-csv-importer-admin.php:288
+#: admin/class-product-csv-importer-admin.php:372
 msgid ""
 "The ordinal number of the line containing the names of the output parameters "
 "of the store, corresponding to each column of the .csv file"
@@ -78,11 +101,11 @@ msgstr ""
 "Порядковый номер строки, содержащей названия параметров продукции магазина, "
 "соответствующих каждой отдельной колонке .csv файла"
 
-#: admin/class-product-csv-importer-admin.php:295
+#: admin/class-product-csv-importer-admin.php:379
 msgid "File charset"
 msgstr "Кодировка файла"
 
-#: admin/class-product-csv-importer-admin.php:307
+#: admin/class-product-csv-importer-admin.php:391
 msgid ""
 "If Microsoft Excel was used to create the .csv file, you must select the "
 "windows-1251 encoding. In most other cases (for example, LibreOffice Calc in "
@@ -92,17 +115,26 @@ msgstr ""
 "выбрать кодировку windows-1251. В большинстве других случаев (например, "
 "LibreOffice Calc в Linux) базовой кодировкой является utf-8."
 
-#: admin/class-product-csv-importer-admin.php:315
+#: admin/class-product-csv-importer-admin.php:399
 msgid "Importing CSV-file"
 msgstr "Файл импорта (.csv)"
 
-#: admin/class-product-csv-importer-admin.php:318
+#: admin/class-product-csv-importer-admin.php:402
 msgid "Select"
 msgstr "Выбрать"
 
-#: admin/class-product-csv-importer-admin.php:328
+#: admin/class-product-csv-importer-admin.php:412
 msgid "Save"
 msgstr "Отправить "
+
+#~ msgid "Created products: "
+#~ msgstr "Товаров создано: "
+
+#~ msgid "Updated products: "
+#~ msgstr "Товаров обновлено: "
+
+#~ msgid "Error: "
+#~ msgstr "Ошибка: "
 
 #~ msgid "Row No. with header cells"
 #~ msgstr "№ строки с заголовочными ячейками"
