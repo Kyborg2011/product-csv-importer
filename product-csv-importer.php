@@ -121,7 +121,12 @@ function pci_get_product_by_sku($sku)
 function pci_update_product_by_id($post_id, $data)
 {
     if ($post_id) {
-        wp_set_object_terms($post_id, $data['product_cat'], 'product_cat');
+        /* Set product category */
+        foreach($data as $k => $v) {
+            if (strpos($k, 'product_cat')) {
+                wp_set_object_terms($post_id, $v, 'product_cat');
+            }
+        }
         wp_set_object_terms($post_id, Constants::DEFAULT_PRODUCT_TYPE, 'product_type');
 
         foreach ($data as $key => $val) {
@@ -285,6 +290,8 @@ function pci_process_data_ajax_action()
     $result = [];
     $count_updated_products = 0;
     $count_created_products = 0;
+    $created_products_sku = array();
+    $updated_products_sku = array();
     $table_name = Constants::INTERMEDIATE_TABLE_NAME;
 
     // Default limit value
@@ -298,6 +305,9 @@ function pci_process_data_ajax_action()
     if (isset($_POST['offset']) && $_POST['offset']) {
         $offset = intval(strip_tags(trim($_POST['offset'])));
     }
+
+    $querystr = "SELECT COUNT(*) FROM $table_name";
+    $total_entries_number = $wpdb->get_var($querystr);
 
     $querystr = "SELECT * FROM $table_name LIMIT $limit OFFSET $offset";
     $importing_data = $wpdb->get_results($querystr, ARRAY_A);
@@ -331,16 +341,21 @@ function pci_process_data_ajax_action()
             if ($product != null) {
                 if (pci_update_product_by_id($product->id, $data)) {
                     ++$count_updated_products;
+                    $updated_products_sku[] = $data['_sku'];
                 }
             } else {
                 pci_create_product($data);
                 ++$count_created_products;
+                $created_products_sku[] = $data['_sku'];
             }
         }
     }
 
+    $result['count'] = $total_entries_number;
     $result['count_created_products'] = $count_created_products;
     $result['count_updated_products'] = $count_updated_products;
+    $result['created_products_sku'] = $created_products_sku;
+    $result['updated_products_sku'] = $updated_products_sku;
 
     wp_send_json($result);
     wp_die();

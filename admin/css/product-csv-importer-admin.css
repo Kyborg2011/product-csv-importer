@@ -128,6 +128,14 @@
     text-align: center;
 }
 
-#pci-default-progress-bar-text {
+#pci-default-progress-bar-text, #pci-default-progress-bar-text-success {
     display: none;
+}
+
+#pci-stats-block > div {
+    display: none;
+}
+
+.pci-stats-error {
+  color: red;
 }

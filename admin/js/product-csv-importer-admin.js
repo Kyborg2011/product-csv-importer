@@ -1,88 +1,128 @@
-function setIntervalAndExecute( fn, t ) {
-  fn();
-  return ( setInterval( fn, t ));
-}
+const PARTIAL_REQUEST_ACTION_NAME = 'pci_process_data_ajax_action';
+
+var defaultProgressBarText = '',
+  animationTimerId = 0,
+  textTimerId = 0,
+  progress = 1.0,
+  textChangingIndex = 0,
+  bar = false;
 
 ( function( $ ) {
   'use strict';
 
-  const PARTIAL_REQUEST_ACTION_NAME = 'pci_process_data_ajax_action';
+  function setIntervalAndExecute( fn, t ) {
+    fn();
+    return ( setInterval( fn, t ));
+  }
 
-  var defaultProgressBarText = '',
-    animationTimerId = 0,
-    textTimerId = 0,
-    progress = 1.0,
-    textChangingIndex = 0,
-    bar = null,
-    i = 0,
+  var ProductsLoadHandler = {
+    isRequestAlreadySend: false,
 
-    ProductsLoadHandler = {
-      isRequestAlreadySend: false,
+    totalNumber: 0,
+    processedNumber: 0,
+    createdNumber: 0,
+    updatedNumber: 0,
+    requestsNumber: 0,
 
-      totalNumber: 0,
-      numberOfUsed: 0,
-      createdNumber: 0,
-      updatedNumber: 0,
-      requestsNumber: 0,
+    createdSKU: [],
+    updatedSKU: [],
 
-      startingTime: false,
-      endingTime: false,
+    startingTime: false,
+    endingTime: false,
 
-      offset: 0,
-      limit: 50,
+    offset: 0,
+    limit: 50,
 
-      partialRequestsTimerId: 0,
-      statsTimerId: 0,
+    partialRequestsTimerId: 0,
+    statsTimerId: 0,
 
-      logStartingDateTime: function() {
-        if ( !this.startingTime && !this.endingTime ) {
-          this.startingTime = moment( 'now' );
-          return true;
-        }
-        return false;
-      },
+    logStartingDateTime: function() {
+      if ( !this.startingTime && !this.endingTime ) {
+        this.startingTime = moment();
+        return true;
+      }
+      return false;
+    },
 
-      statsTimerStart: function() {
-        this.statsTimerId = setIntervalAndExecute( function() {
+    sendPartialQuery: function() {
+      if ( this.partialRequestsTimerId ) {
+        clearTimeout( this.partialRequestsTimerId );
+        this.partialRequestsTimerId = 0;
+      }
 
-        }, 500 );
-      },
+      var self = this,
+        data = {
+          'action': PARTIAL_REQUEST_ACTION_NAME,
+          'limit': self.limit,
+          'offset': self.offset,
+        };
 
-      sendPartialQuery: function() {
-        if ( this.isRequestAlreadySend ) {
-          return false;
-        }
+      if ( this.offset >= this.totalNumber && this.requestsNumber ) {
+        this.endingTime = moment();
+      }
 
-        if ( this.partialRequestsTimerId ) {
-          clearTimeout( this.partialRequestsTimerId );
-          this.partialRequestsTimerId = 0;
-        }
+      this.updateUI();
 
-        var self = this,
-          data = {
-            'action': PARTIAL_REQUEST_ACTION_NAME,
-            'limit': self.limit,
-            'offset': self.offset,
-          };
-
-        if ( this.offset >= this.totalNumber && this.requestsNumber ) {
-          return false;
-        }
-
+      if ( !this.endingTime ) {
         this.partialRequestsTimerId = setTimeout( function() {
-          self.isRequestAlreadySend = true;
           $.post( ajaxurl, data, function( response ) {
-            console.dir( response );
             self.savePartialResponse( response );
           });
         }, 250 );
-      },
+      }
+    },
 
-      savePartialResponse: function( response ) {
-        this.requestsNumber++;
-        self.isRequestAlreadySend = false;
-      },
-    };
+    savePartialResponse: function( response ) {
+      this.requestsNumber++;
+      if ( typeof response.error !== 'undefined' ) {
+        this.endingTime = moment();
+      }
+      if ( typeof response.count !== 'undefined' ) {
+        this.totalNumber = response.count;
+        this.createdNumber += response.count_created_products;
+        this.updatedNumber += response.count_updated_products;
+        this.createdSKU = this.createdSKU.concat( response.created_products_sku );
+        this.updatedSKU = this.updatedSKU.concat( response.updated_products_sku );
+        this.processedNumber += response.number;
+        this.offset = this.offset + this.limit;
+      }
+      this.sendPartialQuery();
+    },
+
+    updateUI: function() {
+      if ( $( '#pci-stats-total-number' ).length ) {
+        $( '#pci-stats-total-number' ).text( this.totalNumber );
+        $( '#pci-stats-processed-number' ).text( this.processedNumber );
+        $( '#pci-stats-requests-number' ).text( this.requestsNumber );
+        $( '#pci-stats-created-number' ).text( this.createdNumber );
+        $( '#pci-stats-updated-number' ).text( this.updatedNumber );
+        if ( this.startingTime ) {
+          $( '#pci-started-time' ).text( this.startingTime.format( 'HH:mm:ss' ));
+        }
+        if ( this.endingTime ) {
+          $( '#pci-ended-time' ).text( this.endingTime.format( 'HH:mm:ss' ));
+          $( '.pci-working-box h2 span' ).text( 'Импорт завершен!' );
+          if ( bar ) {
+            clearInterval( animationTimerId );
+            clearInterval( textTimerId );
+            bar.text.style.fontFamily = '"Raleway", sans-serif';
+            bar.text.style.fontSize = '17px';
+            bar.text.style.color = '#44AF69';
+            bar.path.setAttribute( 'fill', '#BBDEF0' );
+            bar.path.setAttribute( 'stroke', '#44AF69' );
+            bar.setText( $( '#pci-default-progress-bar-text-success' ).text());
+            bar.set( 1.0 );
+          }
+        }
+        $( '#pci-stats-block div' ).show();
+        $( '.pci-stats-error' ).hide();
+        if ( this.error ) {
+          $( '#pci-stats-error' ).text( this.error );
+          $( '.pci-stats-error' ).show();
+        }
+      }
+    },
+  };
 
   $( window ).load( function() {
     defaultProgressBarText = $( '#pci-default-progress-bar-text' ).text();
@@ -111,7 +151,8 @@ function setIntervalAndExecute( fn, t ) {
                 prefix: true,
                 value: 'translate(-50%, -50%)'
               },
-              fontFamily: '\'Raleway\', sans-serif',
+              fontFamily: '\'Open Sans\', sans-serif',
+              fontWeight: 'bold',
               textTransform: 'uppercase',
               fontSize: '17px',
               width: '115px',
@@ -129,22 +170,20 @@ function setIntervalAndExecute( fn, t ) {
           textChangingIndex = ( textChangingIndex < 3 )
             ? ( textChangingIndex + 1 )
             : 0;
-          for ( i = 0; i < textChangingIndex; i++ ) {
+          for ( var i = 0; i < textChangingIndex; i++ ) {
             tempText += '.';
           }
           bar.setText( tempText );
         }, 700 );
       }
+
+      $( '.tooltip' ).tooltipster({
+        animation: 'fade',
+        delay: 200,
+      });
+
+      ProductsLoadHandler.logStartingDateTime();
+      ProductsLoadHandler.sendPartialQuery();
     }
-
-    $( '.tooltip' ).tooltipster({
-      animation: 'fade',
-      delay: 200,
-    });
-
-    ProductsLoadHandler.logStartingDateTime();
-    ProductsLoadHandler.statsTimerStart();
-    ProductsLoadHandler.sendPartialQuery();
-
   });
 })( jQuery );

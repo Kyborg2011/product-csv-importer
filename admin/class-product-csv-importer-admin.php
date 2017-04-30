@@ -199,7 +199,9 @@ class Product_Csv_Importer_Admin
                     <div class="product-csv-importer-resulted-block">
                         <table>
                             <tr>
-                                <th colspan="3" class="tooltip" title="This is my image's tooltip message!"><span><?php echo __('Products', 'product-csv-importer'); ?></span></th>
+                                <th colspan="3" style="cursor: auto!important;">
+                                    <span style="text-decoration: none;"><?php echo __('Products', 'product-csv-importer'); ?></span>
+                                </th>
                             </tr>
                             <tr>
                                 <th><span><?php echo __('Added', 'product-csv-importer'); ?></span></th>
@@ -215,75 +217,30 @@ class Product_Csv_Importer_Admin
                                         <div class="inside">
                                             <div class="submitbox" id="submitpost">
                                                 <div id="minor-publishing">
-                                                    <div id="misc-publishing-actions">
-                                                        <div class="misc-pub-section misc-pub-post-status">
-                                                            <?php echo __('Total:', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-total-number"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
+                                                    <div id="pci-stats-block">
+                                                        <div class="misc-pub-section misc-pub-post-status pci-stats-error">
+                                                            <?php echo __('Error: ', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-error"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
                                                         </div>
                                                         <div class="misc-pub-section misc-pub-post-status">
-                                                            <?php echo __('Total:', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-total-number"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
+                                                            <?php echo __('Total number: ', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-total-number"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
                                                         </div>
-                                                        <!-- .misc-pub-section -->
-                                                        <div class="misc-pub-section misc-pub-visibility" id="visibility">
-                                                            Видимость: <span id="post-visibility-display">Открыто</span>
-                                                            <a href="#visibility" class="edit-visibility hide-if-no-js" role="button"><span aria-hidden="true">Изменить</span> <span class="screen-reader-text">Изменить видимость</span></a>
-                                                            <div id="post-visibility-select" class="hide-if-js">
-                                                                <input type="hidden" name="hidden_post_password" id="hidden-post-password" value="">
-                                                                <input type="checkbox" style="display:none" name="hidden_post_sticky" id="hidden-post-sticky" value="sticky">
-                                                                <input type="hidden" name="hidden_post_visibility" id="hidden-post-visibility" value="public">
-                                                                <input type="radio" name="visibility" id="visibility-radio-public" value="public" checked="checked"> <label for="visibility-radio-public" class="selectit">Открыто</label><br>
-                                                                <span id="sticky-span"><input id="sticky" name="sticky" type="checkbox" value="sticky"> <label for="sticky" class="selectit">Прилепить на главную страницу</label><br></span>
-                                                                <input type="radio" name="visibility" id="visibility-radio-password" value="password"> <label for="visibility-radio-password" class="selectit">Защищено паролем</label><br>
-                                                                <span id="password-span"><label for="post_password">Пароль:</label> <input type="text" name="post_password" id="post_password" value="" maxlength="255"><br></span>
-                                                                <input type="radio" name="visibility" id="visibility-radio-private" value="private"> <label for="visibility-radio-private" class="selectit">Личное</label><br>
-                                                                <p>
-                                                                    <a href="#visibility" class="save-post-visibility hide-if-no-js button">OK</a>
-                                                                    <a href="#visibility" class="cancel-post-visibility hide-if-no-js button-cancel">Отмена</a>
-                                                                </p>
-                                                            </div>
+                                                        <div class="misc-pub-section misc-pub-post-status">
+                                                            <?php echo __('Processed number: ', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-processed-number"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
                                                         </div>
-                                                        <!-- .misc-pub-section -->
-                                                        <div class="misc-pub-section curtime misc-pub-curtime">
-                                                            <span id="timestamp">
-                                                            Опубликовать <b>сразу</b></span>
-                                                            <a href="#edit_timestamp" class="edit-timestamp hide-if-no-js" role="button"><span aria-hidden="true">Изменить</span> <span class="screen-reader-text">Изменить дату и время</span></a>
-                                                            <fieldset id="timestampdiv" class="hide-if-js">
-                                                                <legend class="screen-reader-text">Дата и время</legend>
-                                                                <div class="timestamp-wrap">
-                                                                    <label>
-                                                                        <span class="screen-reader-text">Месяц</span>
-                                                                        <select id="mm" name="mm">
-                                                                            <option value="01" data-text="Янв">01-Янв</option>
-                                                                            <option value="02" data-text="Фев">02-Фев</option>
-                                                                            <option value="03" data-text="Мар">03-Мар</option>
-                                                                            <option value="04" data-text="Апр" selected="selected">04-Апр</option>
-                                                                            <option value="05" data-text="Май">05-Май</option>
-                                                                            <option value="06" data-text="Июн">06-Июн</option>
-                                                                            <option value="07" data-text="Июл">07-Июл</option>
-                                                                            <option value="08" data-text="Авг">08-Авг</option>
-                                                                            <option value="09" data-text="Сен">09-Сен</option>
-                                                                            <option value="10" data-text="Окт">10-Окт</option>
-                                                                            <option value="11" data-text="Ноя">11-Ноя</option>
-                                                                            <option value="12" data-text="Дек">12-Дек</option>
-                                                                        </select>
-                                                                    </label>
-                                                                    <label><span class="screen-reader-text">День</span><input type="text" id="jj" name="jj" value="28" size="2" maxlength="2" autocomplete="off"></label>, <label><span class="screen-reader-text">Год</span><input type="text" id="aa" name="aa" value="2017" size="4" maxlength="4" autocomplete="off"></label> в <label><span class="screen-reader-text">Час</span><input type="text" id="hh" name="hh" value="11" size="2" maxlength="2" autocomplete="off"></label>:<label><span class="screen-reader-text">Минута</span><input type="text" id="mn" name="mn" value="01" size="2" maxlength="2" autocomplete="off"></label>
-                                                                </div>
-                                                                <input type="hidden" id="ss" name="ss" value="55">
-                                                                <input type="hidden" id="hidden_mm" name="hidden_mm" value="04">
-                                                                <input type="hidden" id="cur_mm" name="cur_mm" value="04">
-                                                                <input type="hidden" id="hidden_jj" name="hidden_jj" value="28">
-                                                                <input type="hidden" id="cur_jj" name="cur_jj" value="28">
-                                                                <input type="hidden" id="hidden_aa" name="hidden_aa" value="2017">
-                                                                <input type="hidden" id="cur_aa" name="cur_aa" value="2017">
-                                                                <input type="hidden" id="hidden_hh" name="hidden_hh" value="11">
-                                                                <input type="hidden" id="cur_hh" name="cur_hh" value="11">
-                                                                <input type="hidden" id="hidden_mn" name="hidden_mn" value="01">
-                                                                <input type="hidden" id="cur_mn" name="cur_mn" value="01">
-                                                                <p>
-                                                                    <a href="#edit_timestamp" class="save-timestamp hide-if-no-js button">OK</a>
-                                                                    <a href="#edit_timestamp" class="cancel-timestamp hide-if-no-js button-cancel">Отмена</a>
-                                                                </p>
-                                                            </fieldset>
+                                                        <div class="misc-pub-section misc-pub-post-status">
+                                                            <?php echo __('Created number:  ', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-created-number"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
+                                                        </div>
+                                                        <div class="misc-pub-section misc-pub-post-status">
+                                                            <?php echo __('Updated number:  ', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-updated-number"></span></span><?php echo __(' items', 'product-csv-importer'); ?></span>
+                                                        </div>
+                                                        <div class="misc-pub-section misc-pub-post-status">
+                                                            <?php echo __('Requests number:  ', 'product-csv-importer'); ?><span id="post-status-display"><span id="pci-stats-requests-number"></span></span></span>
+                                                        </div>
+                                                        <div>
+                                                            <?php echo __('Starting time:  ', 'product-csv-importer'); ?><span id="pci-started-time"></span>
+                                                        </div>
+                                                        <div>
+                                                            <?php echo __('Ending time:  ', 'product-csv-importer'); ?><span id="pci-ended-time"><?php echo __('working now...', 'product-csv-importer'); ?></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -294,6 +251,9 @@ class Product_Csv_Importer_Admin
                                 <td class="product-csv-importer-progress-bar-cell">
                                     <p id="pci-default-progress-bar-text">
                                         <?php echo __('Loading', 'product-csv-importer'); ?>
+                                    </p>
+                                    <p id="pci-default-progress-bar-text-success">
+                                        <?php echo __('Fulfilled!', 'product-csv-importer'); ?>
                                     </p>
                                     <div id="product-csv-importer-progress-bar"></div>
                                 </td>
@@ -461,6 +421,7 @@ class Product_Csv_Importer_Admin
         $config_flags = SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::READ_CSV;
         $self = $this;
         $row_counter = 1;
+        $fields_finded = array();
         $header_cells_row = intval(strip_tags(trim($_POST[$this->header_cells_row_field_name])));
         $formatted_enclosure_symbol = strip_tags(trim($_POST[$this->enclosure_field_name]));
         $enclosure_val_length = strlen($formatted_enclosure_symbol);
@@ -487,9 +448,11 @@ class Product_Csv_Importer_Admin
         $interpreter = new Interpreter();
         $interpreter->addObserver(function (array $row) use (&$self, $header_cells_row, &$row_counter) {
             if ($row_counter == $header_cells_row) {
-                $row = array_unique($row);
-                foreach ($row as $cell) {
+                foreach ($row as $key => $cell) {
                     if ($cell) {
+                        if ($cell == 'product_cat') {
+                            $cell .= '_' . $key;
+                        }
                         $fieldMapping = $cell.' VARCHAR(255)';
                         if ($self->updated_parameters) {
                             $fieldMapping = ', '.$fieldMapping;
