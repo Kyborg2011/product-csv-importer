@@ -1,11 +1,14 @@
 const PARTIAL_REQUEST_ACTION_NAME = 'pci_process_data_ajax_action';
+const NOT_FOUNDED_REQUEST_ACTION_NAME = 'pci_get_not_founded_products_action';
 
 var defaultProgressBarText = '',
   animationTimerId = 0,
   textTimerId = 0,
   progress = 1.0,
   textChangingIndex = 0,
-  bar = false;
+  bar = false,
+  created_products_dialog = null,
+  updated_products_dialog = null;
 
 ( function( $ ) {
   'use strict';
@@ -89,16 +92,42 @@ var defaultProgressBarText = '',
       this.sendPartialQuery();
     },
 
+    getNotFoundedProducts: function() {
+      var self = this,
+        data = {
+          'action': NOT_FOUNDED_REQUEST_ACTION_NAME,
+          'sku': self.createdSKU.concat( self.updatedSKU ),
+        };
+      var notFoundedList = $( '.pci-not-founded-list' );
+      if ( notFoundedList.length ) {
+        $.post( ajaxurl, data, function( response ) {
+          console.dir( response );
+          if ( Array.isArray( response )) {
+            response.forEach( function( val, i, arr ) {
+              var li_el = document.createElement( 'li' );
+              li_el.innerHTML = '<p>' + val + '</p>';
+              notFoundedList.append( li_el );
+            });
+          }
+        });
+      }
+    },
+
     updateUI: function() {
       if ( $( '#pci-stats-total-number' ).length ) {
+        /* Set importing process parameters: */
         $( '#pci-stats-total-number' ).text( this.totalNumber );
         $( '#pci-stats-processed-number' ).text( this.processedNumber );
         $( '#pci-stats-requests-number' ).text( this.requestsNumber );
         $( '#pci-stats-created-number' ).text( this.createdNumber );
         $( '#pci-stats-updated-number' ).text( this.updatedNumber );
+
+        /* Show parsing starting time: */
         if ( this.startingTime ) {
           $( '#pci-started-time' ).text( this.startingTime.format( 'HH:mm:ss' ));
         }
+
+        /* End of processing: */
         if ( this.endingTime ) {
           $( '#pci-ended-time' ).text( this.endingTime.format( 'HH:mm:ss' ));
           $( '.pci-working-box h2 span' ).text( 'Импорт завершен!' );
@@ -113,13 +142,32 @@ var defaultProgressBarText = '',
             bar.setText( $( '#pci-default-progress-bar-text-success' ).text());
             bar.set( 1.0 );
           }
+          this.getNotFoundedProducts();
         }
+
+        /* Errors block handle */
         $( '#pci-stats-block div' ).show();
         $( '.pci-stats-error' ).hide();
         if ( this.error ) {
           $( '#pci-stats-error' ).text( this.error );
           $( '.pci-stats-error' ).show();
         }
+
+        /* Setting up marking code dialoges: */
+        created_products_dialog = $( '#pci-created-dialog' );
+        created_products_dialog.find( 'ul > li' ).remove();
+        this.createdSKU.forEach( function( val, i, arr ) {
+          var li_el = document.createElement( 'li' );
+          li_el.innerHTML = '<p>' + val + '</p>';
+          created_products_dialog.find( 'ul' ).append( li_el );
+        });
+        updated_products_dialog = $( '#pci-updated-dialog' );
+        updated_products_dialog.find( 'ul > li' ).remove();
+        this.updatedSKU.forEach( function( val, i, arr ) {
+          var li_el = document.createElement( 'li' );
+          li_el.innerHTML = '<p>' + val + '</p>';
+          updated_products_dialog.find( 'ul' ).append( li_el );
+        });
       }
     },
   };
@@ -180,6 +228,13 @@ var defaultProgressBarText = '',
       $( '.tooltip' ).tooltipster({
         animation: 'fade',
         delay: 200,
+      });
+
+      $( '.pci-created-dialog-open' ).click( function() {
+        $( '#pci-created-dialog' ).dialog({ width: '700px', minHeight: '500px', maxHeight: '500px' });
+      });
+      $( '.pci-updated-dialog-open' ).click( function() {
+        $( '#pci-updated-dialog' ).dialog({ width: '700px', minHeight: '500px', maxHeight: '500px' });
       });
 
       ProductsLoadHandler.logStartingDateTime();

@@ -175,22 +175,6 @@ function pci_update_product_by_id($post_id, $data)
 
         update_post_meta($post_id, '_visibility', 'visible');
         update_post_meta($post_id, '_stock_status', 'instock');
-        update_post_meta($post_id, 'total_sales', '0');
-        update_post_meta($post_id, '_downloadable', 'yes');
-        update_post_meta($post_id, '_virtual', 'yes');
-        update_post_meta($post_id, '_regular_price', '1');
-        update_post_meta($post_id, '_sale_price', '1');
-        update_post_meta($post_id, '_purchase_note', '');
-        update_post_meta($post_id, '_featured', 'no');
-        update_post_meta($post_id, '_weight', '');
-        update_post_meta($post_id, '_length', '');
-        update_post_meta($post_id, '_width', '');
-        update_post_meta($post_id, '_height', '');
-        update_post_meta($post_id, '_sale_price_dates_from', '');
-        update_post_meta($post_id, '_sale_price_dates_to', '');
-        update_post_meta($post_id, '_sold_individually', '');
-        update_post_meta($post_id, '_manage_stock', 'no');
-        update_post_meta($post_id, '_backorders', 'no');
         update_post_meta($post_id, '_stock', '');
 
         return true;
@@ -361,6 +345,31 @@ function pci_process_data_ajax_action()
     wp_die();
 }
 add_action('wp_ajax_pci_process_data_ajax_action', 'pci_process_data_ajax_action');
+
+function pci_get_not_founded_products_action() {
+    global $wpdb;
+
+    $result = array();
+    $sku_list = $_POST['sku'];
+
+    if (is_array($sku_list)) {
+        foreach($sku_list as $k => $v) {
+            $sku_list[$k] = "'" . $v . "'";
+        }
+        $query = "SELECT meta_value FROM $wpdb->postmeta WHERE meta_key='_sku' " .
+            "AND meta_value != '' AND meta_value NOT IN (" . implode(',', $sku_list) . ")";
+        $result = $wpdb->get_results($query, ARRAY_A );
+        foreach($result as $k => $v) {
+            if ($v['meta_value']) {
+                $result[$k] = $v['meta_value'];
+            }
+        }
+    }
+
+    wp_send_json($result);
+    wp_die();
+}
+add_action('wp_ajax_pci_get_not_founded_products_action', 'pci_get_not_founded_products_action');
 
 /*
  * Custom utility methods end

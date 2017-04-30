@@ -4,138 +4,199 @@
  */
 
 @import url('http://fonts.googleapis.com/css?family=Raleway:300');
-
 .toplevel_page_import_page .wp-menu-image img {
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .product-csv-importer-admin-wrapper select {
-    width: 25em;
+  width: 25em;
 }
 
 .importer-file-field-wrap span {
-    padding: 0.5em;
-    float: left;
-    width: 150px;
-    white-space: nowrap;
-    overflow: hidden;
-    background: #9b59b6;
-    color: #fff;
-    margin-left: 0;
-    width: 504px;
+  padding: 0.5em;
+  float: left;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  background: #9b59b6;
+  color: #fff;
+  margin-left: 0;
+  width: 504px;
 }
 
 .importer-file-field-wrap label {
-    padding: 0.5em;
-    display: inline-block;
-    background: #804399;
-    cursor: pointer;
-    color: #fff;
+  padding: 0.5em;
+  display: inline-block;
+  background: #804399;
+  cursor: pointer;
+  color: #fff;
 }
 
 .importer-file-field-wrap label:hover {
-    background: #623475;
+  background: #623475;
 }
 
 .importer-file-field-wrap input[type="file"] {
-    position: absolute;
-    left: -9999px;
+  position: absolute;
+  left: -9999px;
 }
 
 .product-csv-importer-admin-wrapper .description {
-		max-width: 350px;
+  max-width: 350px;
 }
 
 .product_csv_importer_logo_large {
-		position: absolute;
-	  max-height: 350px;
-	  left: 700px;
+  position: absolute;
+  max-height: 350px;
+  left: 700px;
 }
 
 .product-csv-importer-admin-wrapper .notif {
-		max-width: 525px;
+  max-width: 525px;
 }
 
 .pci-resulted-row {
-    display: none;
+  display: none;
 }
 
 #product-csv-importer-progress-bar {
-    margin: 20px;
-    width: 200px;
-    height: 200px;
-    position: relative;
-    margin: 20px auto;
+  margin: 20px;
+  width: 200px;
+  height: 200px;
+  position: relative;
+  margin: 20px auto;
 }
 
 .product-csv-importer-resulted-block table {
-    width: 100%;
-    font-family: 'Open Sans', sans-serif;
+  width: 100%;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .product-csv-importer-resulted-block table th {
-    height: 35px;
-    font-size: 20px;
-    background: #444;
-    text-transform: uppercase;
-    color: #C8E0F4;
-    font-weight: 300;
-    letter-spacing: 2px;
-    font-family: 'Raleway', sans-serif;
-    cursor: pointer;
+  height: 35px;
+  font-size: 20px;
+  background: #444;
+  text-transform: uppercase;
+  color: #C8E0F4;
+  font-weight: 300;
+  letter-spacing: 2px;
+  font-family: 'Raleway', sans-serif;
+  cursor: pointer;
 }
 
 .product-csv-importer-resulted-block table th:hover {
-    background: #0073aa;
+  background: #0073aa;
 }
 
 .product-csv-importer-resulted-block table th span {
-    display: inline-block;
-    padding-bottom: 2px;
-    border-bottom: 1px #C8E0F4 dashed;
-    color: #C8E0F4;
+  display: inline-block;
+  padding-bottom: 2px;
+  border-bottom: 1px #C8E0F4 dashed;
+  color: #C8E0F4;
 }
 
 .product-csv-importer-resulted-block table td {
-    border: 1px #444 solid;
+  border: 1px #444 solid;
 }
 
 .product-csv-importer-progress-bar-cell {
-    border: 1px #344055 solid;
-    background: #344055;
-    padding: 75px 0;
+  border: 1px #344055 solid;
+  background: #344055;
+  padding: 75px 0;
 }
 
 .pci-working-box {
-    display: inline-block;
+  display: inline-block;
 }
 
-.pci-working-box > h2 {
-    padding: 0 0 15px 20px;
-    cursor: auto !important;
+.pci-working-box>h2 {
+  padding: 0 0 15px 20px;
+  cursor: auto !important;
 }
 
 .pci-working-box {
-    background: #C8E0F4;
-    border: 1px #000 solid;
-    border-radius: 15px;
+  background: #C8E0F4;
+  border: 1px #000 solid;
+  border-radius: 15px;
 }
 
-.pci-stats-row > td {
-    width: 32%;
-    background: #344055;
-    text-align: center;
+.pci-stats-row>td {
+  width: 32%;
+  background: #344055;
+  text-align: center;
 }
 
 #pci-default-progress-bar-text, #pci-default-progress-bar-text-success {
-    display: none;
+  display: none;
 }
 
-#pci-stats-block > div {
-    display: none;
+#pci-stats-block>div {
+  display: none;
 }
 
 .pci-stats-error {
   color: red;
+}
+
+.pci-dialog {
+  display: none;
+}
+
+.pci-dialog ul {
+  list-style: none;
+  float: left;
+  width: 100%;
+  height: 500px;
+  overflow-y: scroll;
+}
+
+.pci-dialog ul li {
+  position: relative;
+  float: left;
+  width: 150px;
+  background-color: #666;
+  border-radius: 5px;
+  margin-left: 10px;
+  color: #fff;
+  text-align: center;
+  height: 50px;
+}
+
+.pci-dialog ul li p {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  text-align: center;
+  transform: translate(0, -50%);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.pci-not-founded-list {
+  list-style: none;
+  box-sizing: border-box;
+  padding: 0 15px;
+  float: left;
+  margin-bottom: 10px;
+}
+
+.pci-not-founded-list li {
+  padding: 10px 0;
+  float: left;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #F26419;
+  border-radius: 5px;
+  color: #fff;
+  text-align: center;
+}
+
+.pci-not-founded-list li p {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
 }

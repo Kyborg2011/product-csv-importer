@@ -204,8 +204,12 @@ class Product_Csv_Importer_Admin
                                 </th>
                             </tr>
                             <tr>
-                                <th><span><?php echo __('Added', 'product-csv-importer'); ?></span></th>
-                                <th><span><?php echo __('Edited', 'product-csv-importer'); ?></span></th>
+                                <th class="tooltip pci-created-dialog-open" title="<?php echo __('Show created products marking codes', 'product-csv-importer'); ?>">
+                                    <span><?php echo __('Added', 'product-csv-importer'); ?></span>
+                                </th>
+                                <th class="tooltip pci-updated-dialog-open" title="<?php echo __('Show updated products marking codes', 'product-csv-importer'); ?>">
+                                    <span><?php echo __('Edited', 'product-csv-importer'); ?></span>
+                                </th>
                                 <th><span><?php echo __('Not Found', 'product-csv-importer'); ?></span></th>
                             </tr>
                             <tr class="pci-stats-row">
@@ -257,12 +261,20 @@ class Product_Csv_Importer_Admin
                                     </p>
                                     <div id="product-csv-importer-progress-bar"></div>
                                 </td>
-                                <td></td>
+                                <td>
+                                    <ul class="pci-not-founded-list"></ul>
+                                </td>
                             </tr>
                             <tr class="pci-resulted-row">
 
                             </tr>
                         </table>
+                        <div id="pci-created-dialog" class="pci-dialog" title="<?php echo __('Created marking codes:', 'product-csv-importer'); ?>">
+                            <ul></ul>
+                        </div>
+                        <div id="pci-updated-dialog" class="pci-dialog" title="<?php echo __('Updated marking codes:', 'product-csv-importer'); ?>">
+                            <ul></ul>
+                        </div>
                     </div>
                 <?php endif;
             }
