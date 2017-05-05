@@ -32,6 +32,8 @@ if (file_exists($composer)) {
     require_once $composer;
 }
 
+use WP_Query;
+
 /*
  * If this file is called directly, abort.
  */
@@ -123,11 +125,22 @@ function pci_update_product_by_id($post_id, $data)
     if ($post_id) {
         /* Set product category */
         foreach($data as $k => $v) {
-            if (strpos($k, 'product_cat')) {
+            if (strpos($k, 'product_cat') !== false) {
                 wp_set_object_terms($post_id, $v, 'product_cat');
             }
         }
         wp_set_object_terms($post_id, Constants::DEFAULT_PRODUCT_TYPE, 'product_type');
+
+        $updating_post_data = array(
+            'ID'           => $post_id,
+        );
+        if (isset($data['post_title'])) {
+            $updating_post_data['post_title'] = $data['post_title'];
+        }
+        if (isset($data['post_content'])) {
+            $updating_post_data['post_content'] = $data['post_content'];
+        }
+        wp_update_post( $updating_post_data );
 
         foreach ($data as $key => $val) {
             if ($key === '_sku') {
@@ -352,19 +365,39 @@ function pci_get_not_founded_products_action() {
     $result = array();
     $sku_list = $_POST['sku'];
 
-    if (is_array($sku_list)) {
-        foreach($sku_list as $k => $v) {
-            $sku_list[$k] = "'" . $v . "'";
-        }
-        $query = "SELECT meta_value FROM $wpdb->postmeta WHERE meta_key='_sku' " .
-            "AND meta_value != '' AND meta_value NOT IN (" . implode(',', $sku_list) . ")";
-        $result = $wpdb->get_results($query, ARRAY_A );
-        foreach($result as $k => $v) {
-            if ($v['meta_value']) {
-                $result[$k] = $v['meta_value'];
+    $brandName = '';
+    if (isset($_POST['brandName'])) {
+        $brandName = strip_tags(trim($_POST['brandName']));
+    }
+
+        if ($brandName && count($sku_list)) {
+            $args = array(
+                'post_type'  => 'product',
+                'posts_per_page'  => -1,
+                'meta_query' => array(
+                    array(
+                        'key' => '_sku',
+                        'value' => $sku_list,
+                        'compare' => 'NOT IN'
+                    ),
+                    array(
+                        'key' => 'brand',
+                        'value' => $brandName,
+                    ),
+                )
+            );
+            $the_query = new WP_Query( $args );
+
+            if ( $the_query->have_posts() ) {
+                while ( $the_query->have_posts() ) {
+                    $the_query->the_post();
+                    $theid = get_the_ID();
+                    $sku = get_post_meta( $theid, '_sku', true );
+                    if ($sku) $result[] = $sku;
+                }
+                wp_reset_postdata();
             }
         }
-    }
 
     wp_send_json($result);
     wp_die();

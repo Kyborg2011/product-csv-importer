@@ -72,11 +72,13 @@ class Product_Csv_Importer_Admin
     private $hidden_field_name = 'product_csv_importer_submit_hidden';
     private $delimeter_field_name = 'product_csv_importer_delimeter_symbol';
     private $enclosure_field_name = 'product_csv_importer_enclosure_symbol';
+    private $brand_field_name = 'product_csv_importer_brand_name';
     private $charset_field_name = 'product_csv_importer_charset';
     private $file_field_name = 'product_csv_importer_file_import';
     private $header_cells_row_field_name = 'product_csv_importer_header_cells_row_number';
 
     public $updated_parameters = '';
+    public $current_brand_name = '';
     public $count_created_products = 0;
     public $count_updated_products = 0;
 
@@ -190,6 +192,11 @@ class Product_Csv_Importer_Admin
             if (false === $file['error'] && isset($uploaded_filename)) {
                 $is_valid = $this->parse_csv_file($uploaded_filename);
 
+                $brand_name = '';
+                if (isset($_POST[$this->brand_field_name])) {
+                    $brand_name = strip_tags(trim($_POST[$this->brand_field_name]));
+                }
+
                 if ($this->updated_parameters) {
                     pci_create_table($this->updated_parameters);
                     pci_load_csv_into_mysql($uploaded_filename);
@@ -210,7 +217,7 @@ class Product_Csv_Importer_Admin
                                 <th class="tooltip pci-updated-dialog-open" title="<?php echo __('Show updated products marking codes', 'product-csv-importer'); ?>">
                                     <span><?php echo __('Edited', 'product-csv-importer'); ?></span>
                                 </th>
-                                <th><span><?php echo __('Not Found', 'product-csv-importer'); ?></span></th>
+                                <th><span><?php echo __('Not Found', 'product-csv-importer'); ?></span><?php if ($brand_name) : ?>(<span id="brand-name"><?=$brand_name?></span>)<?php endif; ?></th>
                             </tr>
                             <tr class="pci-stats-row">
                                 <td>
@@ -362,6 +369,16 @@ class Product_Csv_Importer_Admin
                 <p class="description">
                   <?php echo __('If Microsoft Excel was used to create the .csv file, you must select the windows-1251 encoding. In most other cases (for example, LibreOffice Calc in Linux) the basic encoding is utf-8.', 'product-csv-importer'); ?>
                 </p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <label for="<?= $this->brand_field_name ?>">
+                  <?php echo __('Brand name', 'product-csv-importer'); ?>
+                </label>
+              </th>
+              <td>
+                <input class="regular-text" type="text" id="<?=$this->brand_field_name?>" name="<?=$this->brand_field_name?>" />
               </td>
             </tr>
             <tr>

@@ -97,6 +97,7 @@ var defaultProgressBarText = '',
         data = {
           'action': NOT_FOUNDED_REQUEST_ACTION_NAME,
           'sku': self.createdSKU.concat( self.updatedSKU ),
+          'brandName': $( '#brand-name' ).text(),
         };
       var notFoundedList = $( '.pci-not-founded-list' );
       if ( notFoundedList.length ) {
