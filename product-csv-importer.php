@@ -122,6 +122,8 @@ function pci_get_product_by_sku($sku)
  */
 function pci_update_product_by_id($post_id, $data)
 {
+    global $wpdb;
+
     if ($post_id) {
         /* Set product category */
         foreach($data as $k => $v) {
@@ -131,16 +133,25 @@ function pci_update_product_by_id($post_id, $data)
         }
         wp_set_object_terms($post_id, Constants::DEFAULT_PRODUCT_TYPE, 'product_type');
 
-        $updating_post_data = array(
-            'ID'           => $post_id,
-        );
         if (isset($data['post_title'])) {
-            $updating_post_data['post_title'] = $data['post_title'];
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE $wpdb->posts SET post_title = '%s' WHERE ID = %d",
+                    $data['post_title'],
+                    $post_id
+                )
+            );
         }
+
         if (isset($data['post_content'])) {
-            $updating_post_data['post_content'] = $data['post_content'];
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE $wpdb->posts SET post_content = '%s' WHERE ID = %d",
+                    $data['post_content'],
+                    $post_id
+                )
+            );
         }
-        wp_update_post( $updating_post_data );
 
         foreach ($data as $key => $val) {
             if ($key === '_sku') {
@@ -370,34 +381,34 @@ function pci_get_not_founded_products_action() {
         $brandName = strip_tags(trim($_POST['brandName']));
     }
 
-        if ($brandName && count($sku_list)) {
-            $args = array(
-                'post_type'  => 'product',
-                'posts_per_page'  => -1,
-                'meta_query' => array(
-                    array(
-                        'key' => '_sku',
-                        'value' => $sku_list,
-                        'compare' => 'NOT IN'
-                    ),
-                    array(
-                        'key' => 'brand',
-                        'value' => $brandName,
-                    ),
-                )
-            );
-            $the_query = new WP_Query( $args );
+    if ($brandName && count($sku_list)) {
+        $args = array(
+            'post_type'  => 'product',
+            'posts_per_page'  => -1,
+            'meta_query' => array(
+                array(
+                    'key' => '_sku',
+                    'value' => $sku_list,
+                    'compare' => 'NOT IN'
+                ),
+                array(
+                    'key' => 'brand',
+                    'value' => $brandName,
+                ),
+            )
+        );
+        $the_query = new WP_Query( $args );
 
-            if ( $the_query->have_posts() ) {
-                while ( $the_query->have_posts() ) {
-                    $the_query->the_post();
-                    $theid = get_the_ID();
-                    $sku = get_post_meta( $theid, '_sku', true );
-                    if ($sku) $result[] = $sku;
-                }
-                wp_reset_postdata();
+        if ( $the_query->have_posts() ) {
+            while ( $the_query->have_posts() ) {
+                $the_query->the_post();
+                $theid = get_the_ID();
+                $sku = get_post_meta( $theid, '_sku', true );
+                if ($sku) $result[] = $sku;
             }
+            wp_reset_postdata();
         }
+    }
 
     wp_send_json($result);
     wp_die();

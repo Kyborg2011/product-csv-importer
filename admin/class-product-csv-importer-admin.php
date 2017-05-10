@@ -482,7 +482,7 @@ class Product_Csv_Importer_Admin
                         if ($cell == 'product_cat') {
                             $cell .= '_' . $key;
                         }
-                        $fieldMapping = $cell.' VARCHAR(255)';
+                        $fieldMapping = $cell.' TEXT';
                         if ($self->updated_parameters) {
                             $fieldMapping = ', '.$fieldMapping;
                         }
